@@ -1,0 +1,17 @@
+{
+  "id_pr": "PR-105",
+  "lineas_modificadas": 1200,
+  "archivos": [
+    "src/auth/oauth.py",
+    "src/auth/tokens.py",
+    "src/auth/middleware.py"
+  ],
+  "tests_totales": 130,
+  "tests_fallidos": 0,
+  "cobertura": 0.82,
+  "alertas_criticas": 0,
+  "alertas_altas": 0,
+  "alertas_medias": 0,
+  "rama_destino": "main",
+  "titulo": "Migración de sesiones a OAuth2"
+}

@@ -1,0 +1,15 @@
+{
+  "id_pr": "PR-101",
+  "lineas_modificadas": 3,
+  "archivos": [
+    "README.md"
+  ],
+  "tests_totales": 42,
+  "tests_fallidos": 0,
+  "cobertura": 0.85,
+  "alertas_criticas": 0,
+  "alertas_altas": 0,
+  "alertas_medias": 0,
+  "rama_destino": "main",
+  "titulo": "Corrige typo en README"
+}

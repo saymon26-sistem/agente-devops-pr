@@ -1,0 +1,105 @@
+# El agente revisa cada Pull Request: lee sus sensores (diff, pruebas,
+# cobertura, Bandit), calcula U(s, a) para las 4 acciones y actúa:
+# comenta, etiqueta, deja el check en rojo/verde y opcionalmente fusiona.
+name: Agente DevOps - revisión de PR
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+permissions:
+  contents: write        # solo se usa si AGENTE_AUTOMERGE=true
+  pull-requests: write   # comentar y etiquetar
+
+concurrency:
+  group: agente-pr-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  revisar:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      PR: ${{ github.event.pull_request.number }}
+      BASE_REF: ${{ github.base_ref }}
+      # El título viene del usuario: se pasa por variable de entorno, nunca
+      # interpolado directamente en el script (evita inyección de comandos).
+      TITULO: ${{ github.event.pull_request.title }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r requirements-dev.txt
+
+      # ---------------- SENSORES ----------------
+      - name: "Sensor: diff del PR"
+        run: git diff --numstat "origin/${BASE_REF}...HEAD" > diff.txt
+
+      - name: "Sensor: pruebas y cobertura"
+        run: pytest --junitxml=reporte.xml --cov --cov-report=json:coverage.json || true
+
+      - name: "Sensor: análisis estático (Bandit)"
+        run: bandit -c pyproject.toml -r . -f json -o bandit.json || true
+
+      - name: Consolidar percepción
+        run: |
+          python -m scripts.recolectar_sensores --id "PR-${PR}" --diff diff.txt \
+            --junit reporte.xml --cobertura coverage.json --bandit bandit.json \
+            --rama "${BASE_REF}" --titulo "${TITULO}" --salida sensores.json
+
+      # ---------------- DECISIÓN ----------------
+      - name: Agente - maximizar U(s, a)
+        id: agente
+        run: |
+          set +e
+          python -m scripts.revisar_pr sensores.json
+          echo "codigo=$?" >> "$GITHUB_OUTPUT"
+          echo "accion=$(python -c 'import json;print(json.load(open("decision.json"))["accion"])')" >> "$GITHUB_OUTPUT"
+          echo "etiqueta=$(python -c 'import json;print(json.load(open("decision.json"))["etiqueta"])')" >> "$GITHUB_OUTPUT"
+          cat comentario.md >> "$GITHUB_STEP_SUMMARY"
+
+      # ---------------- ACTUADORES ----------------
+      - name: "Actuador: comentar en el PR"
+        continue-on-error: true   # PRs desde forks no tienen permiso de escritura
+        run: gh pr comment "$PR" --body-file comentario.md --edit-last || gh pr comment "$PR" --body-file comentario.md
+
+      - name: "Actuador: etiquetar"
+        continue-on-error: true
+        env:
+          ETIQUETA: ${{ steps.agente.outputs.etiqueta }}
+        run: |
+          for e in agente:merge-automatico agente:requiere-cambios agente:revision-senior agente:bloqueado; do
+            gh label create "$e" --force --color BFD4F2 >/dev/null
+            gh pr edit "$PR" --remove-label "$e" >/dev/null 2>&1 || true
+          done
+          gh pr edit "$PR" --add-label "$ETIQUETA"
+
+      - name: "Actuador: merge automático (opcional)"
+        if: steps.agente.outputs.codigo == '0' && steps.agente.outputs.accion == 'Aprobar y fusionar (merge)' && vars.AGENTE_AUTOMERGE == 'true'
+        run: gh pr merge "$PR" --squash --auto
+
+      - name: "Actuador: asignar arquitecto senior"
+        if: steps.agente.outputs.accion == 'Asignar arquitecto senior' && vars.ARQUITECTO_SENIOR != ''
+        continue-on-error: true
+        run: gh pr edit "$PR" --add-reviewer "${{ vars.ARQUITECTO_SENIOR }}"
+
+      - name: "Actuador: bloquear despliegue / exigir cambios"
+        if: steps.agente.outputs.codigo != '0'
+        run: |
+          echo "::error::El agente decidió: ${{ steps.agente.outputs.accion }}"
+          exit 1
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: percepcion-y-decision
+          path: |
+            sensores.json
+            decision.json
+            comentario.md

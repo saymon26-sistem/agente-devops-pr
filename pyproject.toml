@@ -1,0 +1,16 @@
+[project]
+name = "agente-devops-pr"
+version = "1.0.0"
+description = "Agente inteligente basado en utilidad para revisión de código y gestión de Pull Requests"
+requires-python = ">=3.10"
+authors = [{ name = "Simon Hurtado" }]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+
+[tool.coverage.run]
+source = ["agente_devops", "scripts"]
+
+[tool.bandit]
+exclude_dirs = ["tests", ".venv"]

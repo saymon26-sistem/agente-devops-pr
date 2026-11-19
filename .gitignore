@@ -1,0 +1,17 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+.coverage
+coverage.json
+reporte.xml
+bandit.json
+diff.txt
+sensores.json
+decision.json
+comentario.md
+resultados.json
+.venv/
+informe/*.aux
+informe/*.log
+informe/*.out
+informe/*.toc
