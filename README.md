@@ -1,4 +1,4 @@
-# 🤖 Agente DevOps: revisión inteligente de Pull Requests
+# Agente DevOps: revisión inteligente de Pull Requests
 
 [![CI](https://github.com/saymon26-sistem/agente-devops-pr/actions/workflows/ci.yml/badge.svg)](https://github.com/saymon26-sistem/agente-devops-pr/actions/workflows/ci.yml)
 ![Python](https://img.shields.io/badge/python-3.10%2B-blue)
@@ -9,10 +9,10 @@ Agente inteligente **basado en utilidad** que vive dentro del pipeline de CI/CD 
 
 | Acción | Efecto en GitHub |
 |---|---|
-| ✅ Aprobar y fusionar | Etiqueta `agente:merge-automatico`, check en verde y merge opcional |
-| ✏️ Solicitar correcciones | Comentario con sugerencias técnicas y check en rojo |
-| 👀 Asignar arquitecto senior | Etiqueta `agente:revision-senior` y se asigna el revisor |
-| ⛔ Bloquear despliegue | Check en rojo, el PR no se puede fusionar |
+| Aprobar y fusionar | Etiqueta `agente:merge-automatico`, check en verde y merge opcional |
+| Solicitar correcciones | Comentario con sugerencias técnicas y check en rojo |
+| Asignar arquitecto senior | Etiqueta `agente:revision-senior` y se asigna el revisor |
+| Bloquear despliegue | Check en rojo, el PR no se puede fusionar |
 
 > **Dilema de utilidad:** acelerar la entrega continua de software frente al riesgo de introducir defectos críticos en producción.
 

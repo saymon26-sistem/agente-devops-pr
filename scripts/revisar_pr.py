@@ -19,7 +19,6 @@ from pathlib import Path
 
 from agente_devops import BLOQUEAR, CORREGIR, AgenteDevOps, SensoresPR
 
-ICONOS = {"success": "✅", "failure": "⛔", "neutral": "👀"}
 
 
 def construir_comentario(sensores: SensoresPR, registro: dict, p_defecto: float) -> str:
@@ -29,9 +28,9 @@ def construir_comentario(sensores: SensoresPR, registro: dict, p_defecto: float)
         for accion, u in sorted(registro["tabla_utilidades"].items(), key=lambda x: -x[1])
     )
     sugerencias = "\n".join(f"- {s}" for s in efecto["sugerencias"]) or "- Sin observaciones."
-    return f"""## 🤖 Agente DevOps — revisión automática
+    return f"""## Agente DevOps: revisión automática
 
-{ICONOS[efecto['estado_check']]} **Decisión:** {registro['accion']}
+**Decisión:** {registro['accion']}
 {efecto['mensaje']}
 
 **Diagnóstico:** `{registro['diagnostico']}` · **P(defecto):** {p_defecto:.1%}
