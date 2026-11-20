@@ -135,7 +135,8 @@ def html(texto: str) -> None:
     st.markdown("\n".join(l.strip() for l in texto.strip().splitlines()), unsafe_allow_html=True)
 
 
-def tema_altair() -> dict:
+@alt.theme.register("devops", enable=True)
+def tema_altair() -> alt.theme.ThemeConfig:
     return {"config": {
         "font": "Inter", "view": {"stroke": None},
         "axis": {"labelColor": SUAVE, "titleColor": SUAVE, "gridColor": "#EEF2F7", "domainColor": BORDE,
@@ -143,9 +144,6 @@ def tema_altair() -> dict:
         "legend": {"labelColor": "#334155", "titleColor": SUAVE, "labelFontSize": 12},
     }}
 
-
-alt.themes.register("devops", tema_altair)
-alt.themes.enable("devops")
 
 # ---------------------------------------------------------------------------
 # Estado
