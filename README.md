@@ -74,6 +74,19 @@ PR-107  Ambiguo    PR_RIESGOSO     0.263     -39.31    110.48     92.76     12.0
 
 ---
 
+## Demo interactiva (Streamlit)
+
+```bash
+pip install -r requirements.txt
+streamlit run app.py
+```
+
+- **Simulador de PR:** mueve los sensores (líneas, pruebas, cobertura, alertas) y mira en vivo $P_{def}$, la utilidad de cada acción y el comentario que se publicaría en GitHub.
+- **Pesos ajustables:** cambia $w_r$, $w_q$… en la barra lateral y observa cómo el agente se vuelve más arriesgado o más conservador.
+- **Batería de pruebas y sensibilidad:** los 7 casos con sus KPIs y la curva de decisiones frente a $w_r$.
+
+Se puede publicar gratis en [Streamlit Community Cloud](https://streamlit.io/cloud) apuntando a `app.py`.
+
 ## Uso
 
 ```bash
@@ -107,6 +120,7 @@ agente_devops/
 scripts/
 ├── recolectar_sensores.py   # Construye la percepción dentro de GitHub Actions
 └── revisar_pr.py            # Ejecuta el agente y genera el comentario del PR
+app.py             # Demo interactiva en Streamlit
 simulacion.py      # Batería de 7 casos de prueba
 tests/             # pytest
 informe/           # Informe técnico en LaTeX (TikZ)
